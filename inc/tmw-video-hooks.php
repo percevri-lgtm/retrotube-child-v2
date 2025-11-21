@@ -53,30 +53,88 @@ if (!function_exists('tmw_child_flipbox_front_image_markup')) {
       return '';
     }
 
-    if ($is_lcp) {
-      $dims = function_exists('tmw_child_front_page_lcp_image')
-        ? (tmw_child_front_page_lcp_image() ?: [])
-        : [];
+    $attachment_id = function_exists('attachment_url_to_postid') ? attachment_url_to_postid($front_url) : 0;
+    $sizes_attr = '(max-width: 600px) 100vw, 369px';
 
-      if (empty($dims['url']) || $dims['url'] !== $front_url) {
-        $dims = function_exists('tmw_child_image_dimensions')
-          ? tmw_child_image_dimensions($front_url)
-          : ['width' => 364, 'height' => 546];
+    if ($is_lcp) {
+      $dims = function_exists('tmw_child_image_dimensions')
+        ? tmw_child_image_dimensions($front_url)
+        : ['width' => 364, 'height' => 546];
+
+      if (function_exists('tmw_child_front_page_lcp_image')) {
+        $lcp_image = tmw_child_front_page_lcp_image();
+        if (!empty($lcp_image['attachment_id'])) {
+          $attachment_id = (int) $lcp_image['attachment_id'];
+        }
+        if (!empty($lcp_image['url'])) {
+          $front_url = $lcp_image['url'];
+        }
+        if (!empty($lcp_image['width'])) {
+          $dims['width'] = (int) $lcp_image['width'];
+        }
+        if (!empty($lcp_image['height'])) {
+          $dims['height'] = (int) $lcp_image['height'];
+        }
       }
 
       $width  = isset($dims['width']) ? (int) $dims['width'] : 364;
       $height = isset($dims['height']) ? (int) $dims['height'] : 546;
 
+      $attrs = [
+        'class'         => 'tmw-lcp-image',
+        'alt'           => $name,
+        'loading'       => 'eager',
+        'fetchpriority' => 'high',
+        'decoding'      => 'async',
+        'sizes'         => $sizes_attr,
+        'width'         => $width,
+        'height'        => $height,
+      ];
+
+      if ($attachment_id) {
+        $image = wp_get_attachment_image($attachment_id, 'tmw-front-optimized', false, $attrs);
+        if ($image) {
+          return $image;
+        }
+      }
+
       return sprintf(
-        '<img class="tmw-lcp-image" src="%s" alt="%s" width="%d" height="%d" loading="eager" fetchpriority="high" decoding="async" />',
+        '<img class="tmw-lcp-image" src="%s" alt="%s" width="%d" height="%d" loading="eager" fetchpriority="high" decoding="async" sizes="%s" />',
         esc_url($front_url),
         esc_attr($name),
         $width,
-        $height
+        $height,
+        esc_attr($sizes_attr)
       );
     }
 
-    return '<img class="tmw-sr-only" src="' . esc_url($front_url) . '" alt="' . esc_attr($name) . '" />';
+    $attrs = [
+      'class'    => 'tmw-sr-only',
+      'alt'      => $name,
+      'loading'  => 'lazy',
+      'decoding' => 'async',
+      'sizes'    => $sizes_attr,
+    ];
+
+    if ($attachment_id) {
+      $image = wp_get_attachment_image($attachment_id, 'tmw-front-optimized', false, $attrs);
+      if ($image) {
+        return $image;
+      }
+    }
+
+    $fallback_dims = function_exists('tmw_child_image_dimensions')
+      ? tmw_child_image_dimensions($front_url)
+      : ['width' => 364, 'height' => 546];
+
+    return sprintf(
+      '<img class="tmw-sr-only" src="%s" alt="%s" width="%d" height="%d" loading="lazy" decoding="async" sizes="%s" />',
+      esc_url($front_url),
+      esc_attr($name),
+      isset($fallback_dims['width']) ? (int) $fallback_dims['width'] : 364,
+      isset($fallback_dims['height']) ? (int) $fallback_dims['height'] : 546,
+      esc_attr($sizes_attr)
+    );
   }
 }
 
