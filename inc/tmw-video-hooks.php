@@ -111,6 +111,7 @@ if (!function_exists('tmw_child_flipbox_front_image_markup')) {
     $lazy_dims = function_exists('tmw_child_image_dimensions')
       ? tmw_child_image_dimensions($front_url)
       : ['width' => 364, 'height' => 546];
+    $lazy_srcset = $attachment_id ? wp_get_attachment_image_srcset($attachment_id, 'tmw-front-optimized') : '';
 
     $attrs = [
       'class'         => 'tmw-sr-only',
@@ -123,6 +124,10 @@ if (!function_exists('tmw_child_flipbox_front_image_markup')) {
       'height'        => isset($lazy_dims['height']) ? (int) $lazy_dims['height'] : 546,
     ];
 
+    if ($lazy_srcset) {
+      $attrs['srcset'] = $lazy_srcset;
+    }
+
     if ($attachment_id) {
       $image = wp_get_attachment_image($attachment_id, 'tmw-front-optimized', false, $attrs);
       if ($image) {
@@ -131,8 +136,9 @@ if (!function_exists('tmw_child_flipbox_front_image_markup')) {
     }
 
     return sprintf(
-      '<img class="tmw-sr-only" src="%s" alt="%s" width="%d" height="%d" loading="lazy" fetchpriority="low" decoding="async" sizes="%s" />',
+      '<img class="tmw-sr-only" src="%s"%s alt="%s" width="%d" height="%d" loading="lazy" fetchpriority="low" decoding="async" sizes="%s" />',
       esc_url($front_url),
+      $lazy_srcset ? ' srcset="' . esc_attr($lazy_srcset) . '"' : '',
       esc_attr($name),
       isset($lazy_dims['width']) ? (int) $lazy_dims['width'] : 364,
       isset($lazy_dims['height']) ? (int) $lazy_dims['height'] : 546,

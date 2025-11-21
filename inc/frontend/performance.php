@@ -21,11 +21,20 @@ add_action('wp_default_scripts', function ($scripts) {
     }
 });
 
+function tmw_child_is_heavy_media_view(): bool {
+    return is_front_page()
+        || is_singular('model')
+        || is_post_type_archive('model')
+        || is_tax('models')
+        || is_page_template('page-models-grid.php')
+        || is_page_template('template-models-flipboxes.php');
+}
+
 /**
- * Dequeue non-critical styles on the front page.
+ * Dequeue non-critical styles on heavy media views.
  */
 add_action('wp_enqueue_scripts', function () {
-    if (!is_front_page()) {
+    if (!tmw_child_is_heavy_media_view()) {
         return;
     }
 
@@ -52,10 +61,10 @@ add_action('wp_enqueue_scripts', function () {
 }, 99);
 
 /**
- * Delay non-critical styles on the homepage without changing final appearance.
+ * Delay non-critical styles on heavy media views without changing final appearance.
  */
 add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
-    if (is_admin() || !is_front_page()) {
+    if (is_admin() || !tmw_child_is_heavy_media_view()) {
         return $html;
     }
 
@@ -109,14 +118,14 @@ add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
 }, 20, 4);
 
 /**
- * Add defer to non-critical front-page scripts and delay third-party tags until interaction.
+ * Add defer to non-critical heavy-view scripts and delay third-party tags until interaction.
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {
     if (is_admin()) {
         return $tag;
     }
 
-    if (!is_front_page()) {
+    if (!tmw_child_is_heavy_media_view()) {
         return $tag;
     }
 
@@ -155,7 +164,7 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
 }, 10, 3);
 
 add_action('wp_footer', function () {
-    if (!is_front_page()) {
+    if (!tmw_child_is_heavy_media_view()) {
         return;
     }
     ?>
