@@ -942,6 +942,48 @@ a.tag-link {
   overflow: visible;     /* avoid clipping if parent has smaller content box */
 }
 
+/* Slot machine: reserve space & stabilize assets (CLS guard) */
+.single-model .tmw-slot-machine {
+  min-height: 300px;
+}
+
+@media (min-width: 768px) {
+  .single-model .tmw-slot-machine {
+    min-height: 360px;
+  }
+}
+
+.single-model .tmw-slot-machine .slot-body,
+.single-model .tmw-slot-machine .slot-container,
+.single-model .tmw-slot-machine .slot-right {
+  min-height: 240px;
+}
+
+.single-model .tmw-slot-machine img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.single-model .tmw-slot-machine .slot-container img,
+.single-model .tmw-slot-machine .slot-right img {
+  width: 110px;
+  aspect-ratio: 1 / 1;
+}
+
+.single-model .tmw-slot-machine .tmw-result.slot-result {
+  animation-iteration-count: 4;
+  will-change: transform, opacity;
+}
+
+@keyframes heartbeatWin {
+  0%   { transform: scale(1);    opacity: 1; }
+  20%  { transform: scale(1.05); opacity: 1; }
+  45%  { transform: scale(0.96); opacity: 0.92; }
+  70%  { transform: scale(1.07); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
 /* =========================================================
    [TMW ZERO-SEAM v4] Single-model: hero sits INSIDE header
    Remove any join line by neutralizing the FIRST block

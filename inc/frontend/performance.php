@@ -68,6 +68,8 @@ add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
         return $html;
     }
 
+    $host = parse_url($href, PHP_URL_HOST);
+
     $critical_handles = [
         'retrotube-parent',
         'retrotube-child-style',
@@ -85,12 +87,21 @@ add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
         'font-awesome',
         'fontawesome',
         'fontawesome-all',
+        'videojs',
+        'video-js',
+        'videojs-quality',
+        'videojs-quality-selector',
     ];
 
     $delay_prefixes = [
         'autoptimize_',
         'autoptimize-',
         'ao-',
+    ];
+
+    $delay_hosts = [
+        'vjs.zencdn.net',
+        'unpkg.com',
     ];
 
     $should_delay = in_array($handle, $delay_handles, true);
@@ -101,6 +112,12 @@ add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
                 $should_delay = true;
                 break;
             }
+        }
+    }
+
+    if (!$should_delay) {
+        if ($host && in_array($host, $delay_hosts, true)) {
+            $should_delay = true;
         }
     }
 
@@ -116,6 +133,41 @@ add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
         . '<link rel="stylesheet" id="' . $escaped_id . '" href="' . $escaped_href . '" media="print" onload="this.media=\'all\'">'
         . '<noscript><link rel="stylesheet" id="' . $escaped_id . '" href="' . $escaped_href . '" media="' . esc_attr($media_attr) . '"></noscript>';
 }, 20, 4);
+
+add_action('wp_footer', function () {
+    if (!is_singular('model')) {
+        return;
+    }
+    ?>
+    <script>
+    (function () {
+        function stabilizeSlotImages() {
+            var imgs = document.querySelectorAll('.tmw-slot-machine img');
+            imgs.forEach(function (img) {
+                if (!img.hasAttribute('loading')) {
+                    img.setAttribute('loading', 'lazy');
+                }
+                if (!img.hasAttribute('decoding')) {
+                    img.setAttribute('decoding', 'async');
+                }
+                if (!img.hasAttribute('width') && img.naturalWidth) {
+                    img.setAttribute('width', img.naturalWidth);
+                }
+                if (!img.hasAttribute('height') && img.naturalHeight) {
+                    img.setAttribute('height', img.naturalHeight);
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', stabilizeSlotImages, { once: true });
+        } else {
+            stabilizeSlotImages();
+        }
+    })();
+    </script>
+    <?php
+}, 60);
 
 /**
  * Add defer to non-critical heavy-view scripts and delay third-party tags until interaction.
@@ -140,6 +192,10 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
         'tmw-tml-links',
         'retrotube-main',
         'tmw-main-js',
+        'videojs',
+        'video-js',
+        'videojs-quality',
+        'videojs-quality-selector',
     ];
 
     if (in_array($handle, $defer_handles, true)) {
@@ -154,10 +210,20 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
         'analytics.google.com',
         'static.cloudflareinsights.com',
         'cdn.gtranslate.net',
+        'connect.facebook.net',
+        'vk.com',
+        'unpkg.com',
+        'vjs.zencdn.net',
     ];
 
     if ($host && in_array($host, $delay_hosts, true)) {
-        return '<script type="text/plain" data-tmw-delay="true" data-src="' . esc_url($src) . '"></script>';
+        return '<script type="text/plain" data-tmw-delay="true" data-tmw-defer="true" data-src="' . esc_url($src) . '"></script>';
+    }
+
+    $is_videojs = stripos($handle, 'videojs') !== false || stripos($handle, 'video-js') !== false || $host === 'vjs.zencdn.net';
+
+    if ($is_videojs) {
+        return '<script src="' . esc_url($src) . '" defer></script>';
     }
 
     return $tag;
@@ -181,6 +247,9 @@ add_action('wp_footer', function () {
                 var s = document.createElement('script');
                 s.src = src;
                 s.async = true;
+                if (node.getAttribute('data-tmw-defer') === 'true') {
+                    s.defer = true;
+                }
                 node.parentNode.insertBefore(s, node.nextSibling);
             });
         }
