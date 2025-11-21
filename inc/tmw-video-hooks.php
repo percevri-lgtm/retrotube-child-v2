@@ -63,17 +63,27 @@ if (!function_exists('tmw_child_flipbox_front_image_markup')) {
 
       if (function_exists('tmw_child_front_page_lcp_image')) {
         $lcp_image = tmw_child_front_page_lcp_image();
-        if (!empty($lcp_image['attachment_id'])) {
-          $attachment_id = (int) $lcp_image['attachment_id'];
+        $lcp_matches_card = false;
+
+        if (!empty($lcp_image['attachment_id']) && $attachment_id && (int) $lcp_image['attachment_id'] === $attachment_id) {
+          $lcp_matches_card = true;
+        } elseif (!empty($lcp_image['url']) && function_exists('tmw_same_image') && tmw_same_image($lcp_image['url'], $front_url)) {
+          $lcp_matches_card = true;
         }
-        if (!empty($lcp_image['url'])) {
-          $front_url = $lcp_image['url'];
-        }
-        if (!empty($lcp_image['width'])) {
-          $dims['width'] = (int) $lcp_image['width'];
-        }
-        if (!empty($lcp_image['height'])) {
-          $dims['height'] = (int) $lcp_image['height'];
+
+        if ($lcp_matches_card) {
+          if (!empty($lcp_image['attachment_id'])) {
+            $attachment_id = (int) $lcp_image['attachment_id'];
+          }
+          if (!empty($lcp_image['url'])) {
+            $front_url = $lcp_image['url'];
+          }
+          if (!empty($lcp_image['width'])) {
+            $dims['width'] = (int) $lcp_image['width'];
+          }
+          if (!empty($lcp_image['height'])) {
+            $dims['height'] = (int) $lcp_image['height'];
+          }
         }
       }
 
