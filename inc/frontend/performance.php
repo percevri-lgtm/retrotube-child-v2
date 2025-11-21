@@ -113,6 +113,10 @@ add_action('wp_footer', function () {
                 var src = node.getAttribute('data-src');
                 if (!src) { return; }
                 var s = document.createElement('script');
+                Array.prototype.slice.call(node.attributes).forEach(function (attr) {
+                    if (['type', 'data-src', 'data-tmw-delay', 'src'].indexOf(attr.name) !== -1) { return; }
+                    s.setAttribute(attr.name, attr.value);
+                });
                 s.src = src;
                 s.async = true;
                 node.parentNode.insertBefore(s, node.nextSibling);
