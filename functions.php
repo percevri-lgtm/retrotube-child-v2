@@ -99,6 +99,24 @@ if (file_exists($tmw_full)) { require_once $tmw_full; }
 
 require_once get_stylesheet_directory() . '/inc/tmw-mail-fix.php';
 
+add_action('wp_head', function () {
+    if (!is_front_page()) {
+        return;
+    }
+
+    if (!function_exists('tmw_child_front_page_lcp_image')) {
+        return;
+    }
+
+    $lcp_image = tmw_child_front_page_lcp_image();
+    if (empty($lcp_image['url'])) {
+        return;
+    }
+    ?>
+    <link rel="preload" as="image" href="<?php echo esc_url($lcp_image['url']); ?>">
+    <?php
+});
+
 // Disable updates for the Retrotube parent theme
 add_filter('site_transient_update_themes', function($value) {
 
