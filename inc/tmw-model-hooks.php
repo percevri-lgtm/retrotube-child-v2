@@ -410,9 +410,52 @@ if (!function_exists('tmw_render_model_banner')) {
         $style .= ';';
       }
 
+      $attachment_id = attachment_url_to_postid($url);
+      $image_size    = apply_filters('tmw/model_banner/image_size', 'large');
+      $dimensions    = function_exists('tmw_child_image_dimensions')
+        ? tmw_child_image_dimensions($url, 1035, 350)
+        : ['width' => 1035, 'height' => 350];
+
+      $attrs = [
+        'src'           => esc_url($url),
+        'alt'           => '',
+        'loading'       => 'eager',
+        'fetchpriority' => 'high',
+        'decoding'      => 'async',
+        'width'         => (int) $dimensions['width'],
+        'height'        => (int) $dimensions['height'],
+      ];
+
+      if ($attachment_id) {
+        $src_data = wp_get_attachment_image_src($attachment_id, $image_size);
+        if (is_array($src_data) && !empty($src_data[0])) {
+          $attrs['src']    = esc_url($src_data[0]);
+          $attrs['width']  = !empty($src_data[1]) ? (int) $src_data[1] : $attrs['width'];
+          $attrs['height'] = !empty($src_data[2]) ? (int) $src_data[2] : $attrs['height'];
+        }
+
+        $srcset = wp_get_attachment_image_srcset($attachment_id, $image_size);
+        if ($srcset) {
+          $attrs['srcset'] = $srcset;
+        }
+
+        $sizes = wp_get_attachment_image_sizes($attachment_id, $image_size);
+        if ($sizes) {
+          $attrs['sizes'] = $sizes;
+        }
+      }
+
+      $attr_html = '';
+      foreach ($attrs as $key => $value) {
+        if ($value === '' || $value === null) {
+          continue;
+        }
+        $attr_html .= ' ' . $key . '="' . esc_attr($value) . '"';
+      }
+
       echo '<div class="tmw-banner-container">';
       echo '  <div class="' . esc_attr(implode(' ', $classes)) . '" style="' . esc_attr($style) . '">';
-      echo '    <img src="' . esc_url($url) . '" alt="" loading="lazy" />';
+      echo '    <img' . $attr_html . ' />';
       echo '  </div>';
       echo '</div>';
 
