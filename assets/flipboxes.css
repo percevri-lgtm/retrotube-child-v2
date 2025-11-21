@@ -225,6 +225,17 @@
   display: inline-block;
 }
 
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-view,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-view{
+  animation: none;
+}
+
 @media (prefers-reduced-motion:reduce){
   .tmw-flip-back .tmw-view,
   .tmw-flip-front .tmw-name,
