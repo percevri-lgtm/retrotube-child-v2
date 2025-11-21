@@ -194,17 +194,16 @@
 .tmw-flip-back .tmw-view{
   /* keep your existing styles; add the animation below */
   animation: tmw-pulse 1.6s ease-in-out infinite;
-  box-shadow: 0 0 0 rgba(219,0,26,0);
-  will-change: transform, box-shadow;
+  will-change: transform, opacity;
 }
 
 
 /* Pulse the chip (slight scale + soft red glow) */
 @keyframes tmw-pulse{
-  0%   { transform: translateX(-50%) scale(1);    box-shadow: 0 0 0 0 rgba(219,0,26,0); }
-  35%  { transform: translateX(-50%) scale(1.06); box-shadow: 0 0 18px 2px rgba(219,0,26,.45); }
-  70%  { transform: translateX(-50%) scale(1);    box-shadow: 0 0 0 0 rgba(219,0,26,0); }
-  100% { transform: translateX(-50%) scale(1); }
+  0%   { transform: translateX(-50%) scale(1);    opacity: 1;    }
+  35%  { transform: translateX(-50%) scale(1.06); opacity: 0.92; }
+  70%  { transform: translateX(-50%) scale(1);    opacity: 1;    }
+  100% { transform: translateX(-50%) scale(1);    opacity: 1;    }
 }
 
 /* Nudge the >>> a tiny bit */
@@ -217,8 +216,7 @@
 .tmw-flip-front .tmw-name{
   /* keep existing centering styles; add animation */
   animation: tmw-pulse 1.6s ease-in-out infinite;
-  box-shadow: 0 0 0 rgba(219,0,26,0);
-  will-change: transform, box-shadow;
+  will-change: transform, opacity;
 }
 
 .tmw-flip-front .tmw-name::after{

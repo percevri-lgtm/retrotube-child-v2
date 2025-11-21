@@ -52,6 +52,63 @@ add_action('wp_enqueue_scripts', function () {
 }, 99);
 
 /**
+ * Delay non-critical styles on the homepage without changing final appearance.
+ */
+add_filter('style_loader_tag', function ($html, $handle, $href, $media) {
+    if (is_admin() || !is_front_page()) {
+        return $html;
+    }
+
+    $critical_handles = [
+        'retrotube-parent',
+        'retrotube-child-style',
+        'rt-child-flip',
+    ];
+
+    if (in_array($handle, $critical_handles, true)) {
+        return $html;
+    }
+
+    $delay_handles = [
+        'jquery-fancybox',
+        'fancybox',
+        'fancybox-css',
+        'font-awesome',
+        'fontawesome',
+        'fontawesome-all',
+    ];
+
+    $delay_prefixes = [
+        'autoptimize_',
+        'autoptimize-',
+        'ao-',
+    ];
+
+    $should_delay = in_array($handle, $delay_handles, true);
+
+    if (!$should_delay) {
+        foreach ($delay_prefixes as $prefix) {
+            if (strpos($handle, $prefix) === 0) {
+                $should_delay = true;
+                break;
+            }
+        }
+    }
+
+    if (!$should_delay) {
+        return $html;
+    }
+
+    $media_attr = $media ?: 'all';
+    $escaped_href = esc_url($href);
+    $escaped_id = esc_attr($handle) . '-css';
+
+    return '<link rel="preload" as="style" href="' . $escaped_href . '" />'
+        . '<link rel="stylesheet" id="' . $escaped_id . '" href="' . $escaped_href . '" media="print" onload="this.media=\'all\'">'
+        . '<noscript><link rel="stylesheet" id="' . $escaped_id . '" href="' . $escaped_href . '" media="' . esc_attr($media_attr) . '"></noscript>';
+}, 20, 4);
+
+/**
  * Add defer to non-critical front-page scripts and delay third-party tags until interaction.
  */
 add_filter('script_loader_tag', function ($tag, $handle, $src) {

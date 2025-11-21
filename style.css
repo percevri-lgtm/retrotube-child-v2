@@ -992,6 +992,7 @@ a.tag-link {
 .tmw-pulse {
   animation: tmw-pulse-scale 1.5s infinite;
   box-shadow: none !important;
+  will-change: transform, opacity;
 }
 
 @keyframes tmw-pulse-scale {
