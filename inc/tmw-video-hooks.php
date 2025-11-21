@@ -47,6 +47,39 @@ if (!function_exists('tmw_pick_images_for_term')) {
   }
 }
 
+if (!function_exists('tmw_child_flipbox_front_image_markup')) {
+  function tmw_child_flipbox_front_image_markup(string $front_url, string $name, bool $is_lcp): string {
+    if ($front_url === '') {
+      return '';
+    }
+
+    if ($is_lcp) {
+      $dims = function_exists('tmw_child_front_page_lcp_image')
+        ? (tmw_child_front_page_lcp_image() ?: [])
+        : [];
+
+      if (empty($dims['url']) || $dims['url'] !== $front_url) {
+        $dims = function_exists('tmw_child_image_dimensions')
+          ? tmw_child_image_dimensions($front_url)
+          : ['width' => 364, 'height' => 546];
+      }
+
+      $width  = isset($dims['width']) ? (int) $dims['width'] : 364;
+      $height = isset($dims['height']) ? (int) $dims['height'] : 546;
+
+      return sprintf(
+        '<img class="tmw-lcp-image" src="%s" alt="%s" width="%d" height="%d" loading="eager" fetchpriority="high" decoding="async" />',
+        esc_url($front_url),
+        esc_attr($name),
+        $width,
+        $height
+      );
+    }
+
+    return '<img class="tmw-sr-only" src="' . esc_url($front_url) . '" alt="' . esc_attr($name) . '" />';
+  }
+}
+
 if (!function_exists('tmw_get_model_post_for_term')) {
   function tmw_get_model_post_for_term($term) {
     if (is_numeric($term)) {
@@ -159,13 +192,16 @@ if (!function_exists('tmw_render_flipbox_card')) {
         ? tmw_sr_text(sprintf(__('Open %s profile', 'retrotube-child'), $name))
         : '';
 
+    $use_lcp_img = function_exists('tmw_child_should_use_lcp_image') && tmw_child_should_use_lcp_image();
+    $front_img   = function_exists('tmw_child_flipbox_front_image_markup')
+      ? tmw_child_flipbox_front_image_markup($front_url, $name, $use_lcp_img)
+      : '';
+
     ob_start(); ?>
     <div class="tmw-flip"<?php echo $card_attr_html; ?>>
       <div class="tmw-flip-inner">
         <div class="tmw-flip-front" style="<?php echo esc_attr($front_style); ?>">
-          <?php if (!empty($front_url)) : ?>
-            <img class="tmw-sr-only" src="<?php echo esc_url($front_url); ?>" alt="<?php echo esc_attr($name); ?>" />
-          <?php endif; ?>
+          <?php echo $front_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
           <span class="tmw-name"><?php echo esc_html($name); ?></span>
         </div>
         <div class="tmw-flip-back" style="<?php echo esc_attr($back_style); ?>">
@@ -484,12 +520,15 @@ function tmw_models_flipboxes_cb($atts){
       ? tmw_sr_text(sprintf(__('Open %s profile', 'retrotube-child'), $term->name))
       : '';
 
+    $use_lcp_img = function_exists('tmw_child_should_use_lcp_image') && tmw_child_should_use_lcp_image();
+    $front_img   = function_exists('tmw_child_flipbox_front_image_markup')
+      ? tmw_child_flipbox_front_image_markup($front_url, $term->name, $use_lcp_img)
+      : '';
+
     echo '<div class="tmw-flip"' . $card_attr_html . '>';
     echo   '<div class="tmw-flip-inner">';
     echo     '<div class="tmw-flip-front" style="' . esc_attr($front_style) . '">';
-    if (!empty($front_url)) {
-      echo '<img class="tmw-sr-only" src="' . esc_url($front_url) . '" alt="' . esc_attr($term->name) . '" />';
-    }
+    echo       $front_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     echo       '<span class="tmw-name">' . esc_html($term->name) . '</span>';
     echo     '</div>';
     echo     '<div class="tmw-flip-back"  style="' . esc_attr($back_style) . '">';
