@@ -1,0 +1,33 @@
+/* Admin banner layout helpers */
+.tmw-slider {
+    width: 100%;
+}
+
+/* Admin banners UI */
+.tmw-banner-frame {
+    background: #000;
+}
+.tmw-banner-frame img {
+    display: block;
+}
+
+/* === Fix: ensure preview image fills banner frame in WP-Admin and mirrors front-end offset === */
+#poststuff .tmw-banner-frame {
+    position: relative;
+    overflow: hidden;
+    /* keep the canonical admin preview height; matches our front-end base (350px fallback) */
+    height: var(--tmw-hero-base-h, 350px);
+}
+#poststuff .tmw-banner-frame img,
+#poststuff .tmw-banner-frame picture > img,
+#poststuff .tmw-banner-frame .wp-post-image {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    object-fit: cover;
+    /* mirror front-end translate-only offset */
+    transform: translateY(var(--offset-y, 0px));
+    will-change: transform;
+}
