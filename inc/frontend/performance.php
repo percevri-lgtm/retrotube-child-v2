@@ -198,6 +198,7 @@ function tmw_child_front_page_lcp_image(): array {
     $term = $terms[0];
     $front_url = '';
     $back_url  = '';
+    $attachment_id = 0;
 
     if (function_exists('tmw_aw_card_data')) {
         $card = tmw_aw_card_data($term->term_id);
@@ -252,11 +253,26 @@ function tmw_child_front_page_lcp_image(): array {
 
     $dims = tmw_child_image_dimensions($front_url);
 
+    $attachment_id = function_exists('attachment_url_to_postid') ? attachment_url_to_postid($front_url) : 0;
+    if ($attachment_id) {
+        $optimized = wp_get_attachment_image_src($attachment_id, 'tmw-front-optimized');
+        if (is_array($optimized) && !empty($optimized[0])) {
+            $front_url = $optimized[0];
+            if (!empty($optimized[1])) {
+                $dims['width'] = (int) $optimized[1];
+            }
+            if (!empty($optimized[2])) {
+                $dims['height'] = (int) $optimized[2];
+            }
+        }
+    }
+
     $cache = [
         'url'    => $front_url,
         'alt'    => $term->name,
         'width'  => $dims['width'],
         'height' => $dims['height'],
+        'attachment_id' => $attachment_id,
     ];
 
     return $cache;

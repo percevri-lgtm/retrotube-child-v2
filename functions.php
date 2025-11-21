@@ -117,6 +117,33 @@ add_action('wp_head', function () {
     <?php
 });
 
+// Ensure logo images retain explicit dimensions and async decoding without moving markup.
+add_filter('get_custom_logo_image_attributes', function ($attrs, $custom_logo_id) {
+    if (!$custom_logo_id) {
+        return $attrs;
+    }
+
+    $meta = wp_get_attachment_metadata($custom_logo_id);
+    if (is_array($meta)) {
+        if (empty($attrs['width']) && !empty($meta['width'])) {
+            $attrs['width'] = (int) $meta['width'];
+        }
+        if (empty($attrs['height']) && !empty($meta['height'])) {
+            $attrs['height'] = (int) $meta['height'];
+        }
+    }
+
+    if (!isset($attrs['loading'])) {
+        $attrs['loading'] = 'lazy';
+    }
+
+    if (empty($attrs['decoding'])) {
+        $attrs['decoding'] = 'async';
+    }
+
+    return $attrs;
+}, 10, 2);
+
 // Disable updates for the Retrotube parent theme
 add_filter('site_transient_update_themes', function($value) {
 
