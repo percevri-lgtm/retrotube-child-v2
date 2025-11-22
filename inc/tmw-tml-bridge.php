@@ -11,12 +11,6 @@ final class TMW_TML_Bridge {
     }
 
     public static function enqueue() {
-        $is_account_view = is_page(['login', 'register', 'lostpassword', 'profile', 'account']) || is_user_logged_in();
-
-        if (!$is_account_view) {
-            return;
-        }
-
         $src = get_stylesheet_directory_uri().'/js/tmw-tml-links.js';
         wp_register_script('tmw-tml-links', $src, [], '1.0.0', true);
         wp_enqueue_script('tmw-tml-links');
