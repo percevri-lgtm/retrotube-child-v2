@@ -434,6 +434,19 @@ if (!function_exists('tmw_render_model_banner')) {
           $attrs['height'] = !empty($src_data[2]) ? (int) $src_data[2] : $attrs['height'];
         }
 
+        $meta = wp_get_attachment_metadata($attachment_id);
+        if (is_array($meta) && isset($meta['sizes'][$image_size])) {
+          $size_meta = $meta['sizes'][$image_size];
+
+          if (!empty($size_meta['width'])) {
+            $attrs['width'] = (int) $size_meta['width'];
+          }
+
+          if (!empty($size_meta['height'])) {
+            $attrs['height'] = (int) $size_meta['height'];
+          }
+        }
+
         $srcset = wp_get_attachment_image_srcset($attachment_id, $image_size);
         if ($srcset) {
           $attrs['srcset'] = $srcset;
