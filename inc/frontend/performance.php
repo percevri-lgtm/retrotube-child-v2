@@ -179,7 +179,7 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
         return $tag;
     }
 
-    if (!tmw_child_is_heavy_media_view()) {
+    if (!(is_front_page() || is_singular('model'))) {
         return $tag;
     }
 
@@ -232,7 +232,7 @@ add_filter('script_loader_tag', function ($tag, $handle, $src) {
 }, 10, 3);
 
 add_action('wp_footer', function () {
-    if (!tmw_child_is_heavy_media_view()) {
+    if (!(is_front_page() || is_singular('model'))) {
         return;
     }
     ?>
