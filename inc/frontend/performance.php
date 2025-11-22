@@ -45,10 +45,12 @@ add_action('wp_enqueue_scripts', function () {
         }
     }
 
-    $tml_handles = ['theme-my-login', 'tml', 'theme-my-login-widget'];
-    foreach ($tml_handles as $handle) {
-        if (wp_style_is($handle, 'enqueued')) {
-            wp_dequeue_style($handle);
+    if (is_front_page()) {
+        $tml_handles = ['theme-my-login', 'tml', 'theme-my-login-widget'];
+        foreach ($tml_handles as $handle) {
+            if (wp_style_is($handle, 'enqueued')) {
+                wp_dequeue_style($handle);
+            }
         }
     }
 
