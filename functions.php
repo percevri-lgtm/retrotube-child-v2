@@ -144,6 +144,36 @@ add_filter('get_custom_logo_image_attributes', function ($attrs, $custom_logo_id
     return $attrs;
 }, 10, 2);
 
+// Ensure grayscale logo variants keep explicit dimensions without altering templates.
+add_filter('wp_get_attachment_image_attributes', function ($attr, $attachment, $size) {
+    $classes = isset($attr['class']) ? (string) $attr['class'] : '';
+    if (strpos($classes, 'custom-logo') === false && strpos($classes, 'grayscale') === false) {
+        return $attr;
+    }
+
+    $attachment_id = is_object($attachment) && isset($attachment->ID) ? (int) $attachment->ID : (int) $attachment;
+    if (!$attachment_id) {
+        return $attr;
+    }
+
+    $meta = wp_get_attachment_metadata($attachment_id);
+    if (is_array($meta)) {
+        if (empty($attr['width']) && !empty($meta['width'])) {
+            $attr['width'] = (int) $meta['width'];
+        }
+
+        if (empty($attr['height']) && !empty($meta['height'])) {
+            $attr['height'] = (int) $meta['height'];
+        }
+    }
+
+    if (empty($attr['decoding'])) {
+        $attr['decoding'] = 'async';
+    }
+
+    return $attr;
+}, 10, 3);
+
 // Disable updates for the Retrotube parent theme
 add_filter('site_transient_update_themes', function($value) {
 
