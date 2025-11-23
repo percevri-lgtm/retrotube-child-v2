@@ -1,0 +1,1104 @@
+/* Theme Name: Retrotube Child (Flipbox Edition) v2
+ Template: retrotube
+ Version: 1.1.12
+ Description: Child theme for WP-Script Retrotube with Models/Actors hero (1200x350), 20-line bio clamp, plugin-driven featured flipboxes, sidebar layout, banner slot, and custom Model/Actor profile.
+ Author: Top Models Webcam
+*/
+
+/* =========================
+   1. Variables
+   ========================= */
+/* Global hero defaults */
+:root {
+  --offset-x: 50%;
+  --offset-y: 0px;
+  /* Canonical hero base height for fallback when per-post base is absent */
+  --tmw-hero-base-h: 350; /* px (matches 1035/350 aspect) */
+  /* Mobile hero height tied to desktop aspect:
+     desktop ratio = 350 / 1035 ≈ 0.338
+     Using calc(100vw * 0.338) keeps the same crop window height as desktop */
+  --tmw-hero-mobile-h: clamp(120px, calc(100vw * 0.338), 200px);
+  --tmw-hero-vpos: 50%;
+}
+
+/* Header / Navigation helpers */
+#site-navigation .menu > li > a > i,
+.main-navigation .menu > li > a > i {
+  margin-right: .5em;
+  color: #fff;
+  line-height: 1;
+}
+
+/* =========================
+   2. Hero / Banner
+   ========================= */
+.tmw-model-hero {
+  margin: 0 0 18px;
+  position: relative;
+}
+
+.tmw-model-hero {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tmw-banner-container,
+.tmw-banner-frame {
+  position: relative;
+  width: 100%;
+  max-width: 1035px;
+  aspect-ratio: 1035 / 350;
+  overflow: hidden;
+  background: #000;
+  margin: 0 auto 25px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.5);
+}
+
+/* Banner offset safety net (relaxed) */
+.tmw-banner-frame {
+  --offset-y: 0px;
+  --offset-scale: 1; /* runtime: heroHeight / baseHeight */
+}
+
+/* Ensure both desktop and mobile hero images use --offset-y (pixel-perfect with admin) */
+.tmw-banner-frame {
+  /* Frame height is defined elsewhere; keep overflow hidden so the image can fill it */
+  overflow: hidden;
+}
+
+.tmw-banner-frame img,
+.tmw-banner-frame picture > img,
+.tmw-banner-frame .wp-post-image {
+  display: block;
+  width: 100% !important;
+  height: 100% !important; /* beats img{height:auto} in parent/global styles */
+  object-fit: cover !important;
+  /* Keep base anchor only; we apply the offset via transform to match admin */
+  object-position: 50% var(--tmw-hero-vpos, 50%);
+  transform: translateY(calc(var(--offset-y, 0px) * var(--offset-scale, 1)));
+  will-change: transform, object-position;
+}
+
+/* Fallback for browsers without object-fit support */
+@supports not (object-fit: cover) {
+  .tmw-banner-frame img,
+  .tmw-banner-frame picture > img,
+  .tmw-banner-frame .wp-post-image {
+    height: auto !important;
+  }
+}
+
+/* ===============================
+ * Front-end hero image parity
+ * Scope: single model page only
+ * Ensures the full picture fills the banner frame and moves as a whole.
+ * =============================== */
+
+/* Frame should clip the image edges cleanly */
+.single-model .tmw-banner-frame {
+  position: relative;
+  overflow: hidden;
+  --offset-scale: 1;
+}
+
+.tmw-banner-frame .no-banner-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+#tmw-banner-preview,
+#tmwBannerPreview {
+  position: relative;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+#tmw-banner-preview .ph,
+#tmwBannerPreview .ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.tmw-model-hero .tmw-model-name {
+  margin: 10px 0 0;
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+
+/* =========================
+   3. Bio
+   ========================= */
+.tmw-bio {
+  margin: 14px 0 22px;
+}
+
+.tmw-bio-clamp {
+  --tmw-lines: 20;
+}
+
+.tmw-bio-clamp.is-clamped .tmw-bio-clamp-inner {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--tmw-lines);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tmw-bio-toggle.button {
+  margin-top: 10px;
+  border-color: #db011a !important;
+  background-color: #db011a !important;
+  color: #fff !important;
+}
+
+.tmw-bio .tags,
+.tmw-bio .tagcloud,
+.tmw-bio a.tag-cloud-link {
+  display: none !important;
+}
+
+/* =========================
+   4. Live / Socials
+   ========================= */
+.tmw-live {
+  margin: 14px 0;
+}
+
+.tmw-live-btn {
+  display: inline-block;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: #db011a;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+/* =========================
+   5. Flipboxes
+   ========================= */
+.tmw-featured-slot {
+  margin-top: 28px;
+}
+
+.tmw-featured-slot .section-title {
+  font-size: 1.25rem;
+  margin: 0 0 10px;
+}
+
+.tmw-trigger {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.tmw-grid .tmw-flip,
+.tmwfm-grid .tmw-flip {
+  position: relative;
+  display: block;
+  perspective: 1000px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tmw-grid .tmw-flip::before,
+.tmwfm-grid .tmw-flip::before {
+  content: "";
+  display: block;
+  padding-top: 150%;
+}
+
+.tmw-grid .tmw-flip .tmw-flip-inner,
+.tmwfm-grid .tmw-flip .tmw-flip-inner,
+.tmw-grid .tmw-flip .tmw-flip-front,
+.tmwfm-grid .tmw-flip .tmw-flip-front,
+.tmw-grid .tmw-flip .tmw-flip-back,
+.tmwfm-grid .tmw-flip .tmw-flip-back {
+  position: absolute;
+  inset: 0;
+}
+
+.tmw-grid .tmw-flip-front,
+.tmwfm-grid .tmw-flip-front,
+.tmw-grid .tmw-flip-back,
+.tmwfm-grid .tmw-flip-back {
+  background-size: var(--tmw-bgsize, cover);
+  background-position: var(--tmw-bgpos, 50% 50%);
+  background-repeat: no-repeat;
+  border-radius: 12px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.tmw-grid .tmw-flip-inner,
+.tmwfm-grid .tmw-flip-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease;
+}
+
+.tmw-grid .tmw-flip-front,
+.tmwfm-grid .tmw-flip-front {
+  transform: rotateY(0deg);
+}
+
+.tmw-grid .tmw-flip-back,
+.tmwfm-grid .tmw-flip-back {
+  transform: rotateY(180deg);
+}
+
+.tmw-grid .tmw-flip:hover .tmw-flip-inner,
+.tmw-grid .tmw-flip:focus .tmw-flip-inner,
+.tmwfm-grid .tmw-flip:hover .tmw-flip-inner,
+.tmwfm-grid .tmw-flip:focus .tmw-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.model-flipbox {
+  margin: 40px 0;
+}
+
+.model-flipbox .tmwfm-heading {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tmwfm-heading i.fa-random {
+  margin-right: 6px;
+  color: #db011a;
+  font-size: inherit;
+}
+
+.model-flipbox .tmwfm-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .model-flipbox .tmwfm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .model-flipbox .tmwfm-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+}
+
+/* =========================
+   6. Video meta
+   ========================= */
+.video-meta-inline {
+  margin: 10px 0 15px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ccc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.video-meta-inline .video-meta-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.video-meta-inline i {
+  margin-right: 6px;
+  color: #db011a;
+}
+
+@media (max-width: 767px) {
+  .video-meta-inline {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .video-meta-inline .video-meta-item {
+    width: 100%;
+  }
+}
+
+/* =========================
+   7. Mobile
+   ========================= */
+/* ===== TMW HERO/BANNER — Mobile Fix v3.6.1 (no size widening) ===== */
+@media (max-width: 840px) {
+  /* Fallback: maintain clamp bounds but tie to desktop aspect ratio */
+  :root {
+    --tmw-hero-mobile-h: clamp(120px, calc(100vw * 0.338), 200px);
+  }
+  /* Prefer small-viewport width when supported to avoid address-bar jumps */
+  @supports (width: 1svw) {
+    :root {
+      --tmw-hero-mobile-h: clamp(120px, calc(100svw * 0.338), 200px);
+    }
+  }
+
+  /* Keep hero wrappers within the fallback 120–200 window */
+  .tmw-banner-container,
+  .tmw-model-hero,
+  .tmw-banner-frame,
+  .entry-header .tmw-banner-container {
+    height: var(--tmw-hero-mobile-h) !important; /* now matches desktop aspect */
+    min-height: var(--tmw-hero-mobile-h) !important;
+    max-height: var(--tmw-hero-mobile-h) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+}
+
+/* ===== /TMW HERO/BANNER — Mobile Fix v3.6.1 ===== */
+
+/* Progressive enhancement: exact aspect if supported */
+@supports (aspect-ratio: 1 / 1) {
+  @media (max-width: 840px) {
+    .tmw-banner-container,
+    .tmw-model-hero,
+    .tmw-banner-frame,
+    .entry-header .tmw-banner-container {
+      height: auto !important;      /* let aspect-ratio control height */
+      min-height: 0 !important;
+      max-height: none !important;
+    }
+
+    .tmw-banner-frame {
+      aspect-ratio: 1035 / 350;     /* desktop width/height */
+    }
+  }
+}
+
+/* =========================
+   8. Utilities
+   ========================= */
+#video-about #video-models,
+#video-about #video-author,
+#video-about #video-date,
+#video-about #video-actors {
+  display: none !important;
+}
+
+body.tmw-no-embed .player,
+.entry-content .player,
+.post__text .player,
+.video__desc .player {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.tmw-no-embed .post__about,
+body.tmw-no-embed .about,
+body.tmw-no-embed .video__desc,
+body.tmw-no-embed .post__text,
+body.tmw-no-embed .entry-content,
+body.tmw-no-embed .rt-entry-content,
+body.tmw-no-embed .post-desc {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  min-height: 0 !important;
+}
+
+body.tmw-no-embed .post__about:before,
+body.tmw-no-embed .about:before,
+body.tmw-no-embed .video__desc:before,
+body.tmw-no-embed .entry-content:before {
+  content: none !important;
+  display: none !important;
+}
+
+@media (max-width: 1024px) {
+  #tmw-banner-preview,
+  #tmwBannerPreview,
+  .tmw-banner-preview,
+  .tmw-model-banner-frame,
+  .tmw-banner-frame {
+    max-width: 100%;
+  }
+}
+
+/* === Remove legacy model rating/view visuals === */
+.single-model #rating-col,
+.single-model .rating-col,
+.single-model .rating-bar,
+.single-model .rating-bar-meter,
+.single-model .rating-result,
+.single-model #video-views,
+.single-model .video-views {
+  display: none !important;
+}
+
+/* === Keep Like/Dislike with model name === */
+.single-model .tmw-model-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.single-model .tmw-model-header .model-name {
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1.3;
+}
+
+.single-model .tmw-model-header .tmw-model-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.single-model .tmw-model-header .tmw-model-actions #video-rate,
+.single-model .tmw-model-header .tmw-model-actions .like,
+.single-model .tmw-model-header .tmw-model-actions .dislike {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Hide accidental numeric post IDs printed under thumbnails */
+article[id^="post-"]::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* === v2.7.7-remove-video-id === */
+.single-model .tmw-model-video-item .post-id,
+.single-model .tmw-model-video-item .video-meta,
+.single-model .tmw-model-video-item span,
+.single-model .tmw-model-video-item .entry-meta {
+    display: none !important;
+}
+
+/* === v2.7.8-video-thumb-gap-fix === */
+.single-model .tmw-model-video-item .video-title {
+    margin-top: 3px !important;
+    line-height: 1.2em;
+}
+
+/* [TMW-MODEL-TAGS-AUDIT] base rules */
+.tmw-model-tags.post-tags.entry-tags {
+  margin-top: 15px;
+  padding: 12px 0;
+  display: block;
+}
+
+.tmw-model-tags .tag-title {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 6px;
+  gap: 5px;
+}
+
+.tmw-model-tags .tag-title i.fa-tags {
+  color: #db011a;
+  font-size: 14px;
+}
+
+.single-video .video-tags a,
+.single-video .tags a,
+.single-model .tmw-model-tags a.label,
+.single-model .tags a,
+.tmw-model-tags a,
+.tmw-model-tags a.label,
+.single-model a.tag-cloud-link,
+.tags .tags-list .tag-link {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 70%);
+  background-color: #db011a;
+  border: 1px solid #db011a;
+  color: #fff;
+  padding: 0.5em 1em;
+  font-size: 0.9em;
+  margin: 0 .6em .6em 0;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 3px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+  transition: all 0.25s ease-in-out;
+}
+
+.single-video .video-tags a:hover,
+.single-video .tags a:hover,
+.single-model .tmw-model-tags a.label:hover,
+.single-model .tags a:hover,
+.tmw-model-tags a:hover,
+.tmw-model-tags a.label:hover,
+.single-model a.tag-cloud-link:hover,
+.tags .tags-list .tag-link:hover {
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%);
+  background-color: #db011a;
+  border-color: #db011a;
+  color: #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+  text-decoration: none;
+}
+
+.single-model .tmw-model-tags a.label i {
+  margin-right: 5px;
+}
+
+.tmw-model-tags.no-tags {
+  opacity: 0.7;
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .single-video .video-tags a,
+  .single-video .tags a,
+  .single-model .tmw-model-tags a.label,
+  .single-model .tags a,
+  .tmw-model-tags a,
+  .tmw-model-tags a.label,
+  .single-model a.tag-cloud-link,
+  .tags .tags-list .tag-link {
+    margin: 0 1em 1em 0;
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+  }
+}
+
+/* === SINGLE MODEL VISUAL SYNC (RetroTube identical) === */
+.single-model .title-block {
+    background: #282828;
+    border-left-width: 6px;
+    border-left-style: solid;
+    margin: 1.25em 0 1.25em;
+    padding: 0.5em 0.75em 0;
+    box-shadow: 0 8px 17px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.19);
+}
+
+.single-model .title-block h1.entry-title {
+    margin: 0;
+    padding: 0 0 0.5em;
+    font-size: 1.45em;
+    border-bottom: 1px solid #151515;
+    font-weight: normal;
+    color: #eee;
+}
+
+.single-model .entry-content {
+    margin-top: 1em;
+    padding: 0 1em;
+    color: #ccc;
+}
+
+.single-model .rating-bar {
+    background-color: #333 !important;
+    border: 1px solid #333;
+    height: 1.5em;
+    text-align: center;
+    font-size: 75%;
+    color: #fff;
+}
+
+.single-model .rating-bar-meter {
+    height: 1.3em;
+    transition: width 0.3s ease-in-out;
+    box-shadow: inset 0 0 2px #000;
+}
+
+.single-model .videos-featuring {
+    margin-top: 1.5em;
+    padding-top: 0.5em;
+    border-top: 3px solid #333;
+}
+
+.single-model .thumb-block .entry-header {
+    height: 3.5em;
+    overflow: hidden;
+    text-align: center;
+    font-size: 0.875em;
+    padding: 0.5em 0 0;
+    color: #ddd;
+}
+
+/* identical margins & layout with .single-video */
+.single-model #content {
+    margin-top: 1em;
+}
+
+/* === TMW v3.0.8 — Apply RetroTube .label Style to .tag-link (Model Pages) === */
+.tags .tags-list .tag-link,
+a.tag-link {
+    font-size: .9em;
+    line-height: 1.5;
+    padding: .5em 1em;
+    margin: 0 .6em .6em 0;
+}
+
+@media only screen and (max-width: 767.98px) {
+    .tags .tags-list .tag-link {
+        margin: 0 1em 1em 0 !important;
+        padding: .5em 1em !important;
+        font-size: .9em !important;
+    }
+}
+
+/* ============================================================
+   v2.8.6 — Model tags: smaller text + tighter left/right (icons kept)
+   ============================================================ */
+.single-model .tmw-model-tags a,
+.single-model .tmw-model-tags a.label {
+  font-size: 0.85em !important;  /* smaller letters on model page */
+  line-height: 1.28 !important;  /* shorter pill height */
+  padding: 2px 6px !important;   /* top/bottom, left/right = tighter */
+  margin: 0 6px 6px 0 !important;
+  border-radius: 1px;
+}
+
+.single-model .tmw-model-tags a.label i,
+.single-model .tmw-model-tags a i.fa {
+  font-size: 0.85em !important;  /* scale icon with text */
+  margin-right: 5px;
+  line-height: 1;
+  vertical-align: -1px;
+}
+
+/* keep overall block spacing aligned with video .tags */
+.single-model .tmw-model-tags.post-tags.entry-tags {
+  padding: 0;
+  margin: 0 0 12px 0;
+}
+
+/* mobile: keep the tighter spacing */
+@media (max-width: 600px) {
+  .single-model .tmw-model-tags a,
+  .single-model .tmw-model-tags a.label {
+    font-size: 0.85em !important;
+    line-height: 1.28 !important;
+    padding: 2px 6px !important;
+    margin: 0 6px 6px 0 !important;
+  }
+}
+
+/* ============================================================
+   v3.3.9 — FEATURED MODELS: center the ribbon itself, nothing else
+   Works site-wide. Does NOT change container alignment or children.
+   ============================================================ */
+:is(.tmwfm-heading, .tmw-featured-slot .section-title){
+  /* neutralize theme floats/widths */
+  float: none !important;
+  clear: both !important;
+  width: auto !important;
+  /* make the ribbon shrink-to-fit and center the element itself */
+  display: inline-block !important;
+  position: relative !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* spacing kept local to the ribbon */
+  margin: 0 0 12px !important;
+  /* do NOT set text-align on parent containers */
+}
+
+/* =========================
+   Flipbox: "View profile" CTA safe offset
+   v3.5.4 — keep the ribbon fully visible on back face
+   ========================= */
+:root {
+  /* Fine-tune if needed without touching selectors */
+  --tmw-flip-cta-top-desktop: 24px;
+  --tmw-flip-cta-top-mobile: 14px;
+}
+
+/* Ensure the back face is a positioning context */
+.tmw-flip .flip-back {
+  position: relative;
+}
+
+/* Nudge the CTA ribbon down a bit on the BACK side only */
+.tmw-flip .flip-back .view-profile {
+  position: absolute;
+  top: var(--tmw-flip-cta-top-desktop) !important; /* down from the very top */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  /* Safety: ignore any previous "center-on-edge" tricks */
+  bottom: auto !important;
+  transform: none !important;
+  /* Keep pill inside rounded edges */
+  max-width: calc(100% - 24px);
+}
+
+@media (max-width: 768px) {
+  .tmw-flip .flip-back .view-profile {
+    top: var(--tmw-flip-cta-top-mobile) !important;
+  }
+}
+
+
+/* Mobile parity: identical offset handling on small viewports */
+@media (max-width: 840px) {
+  /* Clip any offset bleed safely on mobile */
+  .single-model .tmw-banner-container,
+  .single-model .tmw-model-hero,
+  .single-model .tmw-banner-frame { overflow: hidden; }
+
+  .single-model .tmw-banner-frame img,
+  .single-model .tmw-banner-frame picture > img,
+  .single-model .tmw-banner-frame .wp-post-image {
+    object-fit: cover !important;
+    width: 100% !important;
+    max-width: none !important;
+    transform: translateY(calc(var(--offset-y, 0px) * var(--offset-scale, 1))) !important;
+  }
+}
+
+/* v3.7.2 — Model banner height fill only (no offset/position changes) */
+.single-model .tmw-banner-frame > img,
+.single-model .tmw-banner-frame picture > img,
+.single-model .tmw-hero > img,
+.single-model .tmw-hero picture > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover !important; /* fill the frame's height */
+  display: block;
+}
+
+/* v4.0.1 — Single background renderer: fill height + keep 1:1 offset */
+.single-model .tmw-banner-frame.tmw-bg-mode {
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  /* v4.0.2 — parity with <img> path: include --offset-scale */
+  background-position:
+    var(--offset-x, 50%)
+    calc(
+      var(--tmw-hero-vpos, 50%) +
+      (var(--offset-y, 0px) * var(--offset-scale, 1))
+    ) !important;
+}
+
+/* Hide only the visual <img> layer; keep in DOM for SEO/alt */
+.single-model .tmw-banner-frame.tmw-bg-mode > img,
+.single-model .tmw-banner-frame.tmw-bg-mode picture > img,
+.single-model .tmw-banner-frame.tmw-bg-mode .wp-post-image {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* v4.0.2 — mobile reassertion to win against any late overrides */
+@media (max-width: 840px) {
+  .single-model .tmw-banner-frame.tmw-bg-mode {
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-position:
+      var(--offset-x, 50%)
+      calc(
+        var(--tmw-hero-vpos, 50%) +
+        (var(--offset-y, 0px) * var(--offset-scale, 1))
+      ) !important;
+  }
+  .single-model .tmw-banner-frame.tmw-bg-mode > img,
+  .single-model .tmw-banner-frame.tmw-bg-mode picture > img,
+  .single-model .tmw-banner-frame.tmw-bg-mode .wp-post-image {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
+}
+
+/* (Optional safety) ensure the frame can show its background */
+.single-model .tmw-banner-frame { background-color: #000; overflow: hidden; }
+/* v4.0.3 — Mobile center alignment for related videos on single model pages */
+@media (max-width: 840px) {
+  /* Try common containers used by RetroTube + our child theme */
+  .single-model .tmw-related-videos,
+  .single-model .related-videos,
+  .single-model .entry-related,
+  .single-model .related-posts,
+  .single-model .video-grid,
+  .single-model .videos,
+  .single-model .posts,
+  .single-model .loop-videos {
+    /* Works for flex and grid; harmless for block */
+    justify-content: center !important;
+    justify-items: center !important;
+    text-align: center !important; /* fallback for inline-block flow */
+  }
+
+  /* Center individual cards regardless of layout model */
+  .single-model .tmw-related-videos > *,
+  .single-model .related-videos > *,
+  .single-model .entry-related > *,
+  .single-model .related-posts > *,
+  .single-model .video-grid > *,
+  .single-model .videos > *,
+  .single-model .posts > li,
+  .single-model .loop-videos > * {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Optional, safe fallback when the list is block-flow (no flex/grid) */
+  .single-model .posts > li {
+    display: inline-block;      /* allow centering via text-align on parent */
+    text-align: left;           /* keep card content aligned as before */
+    vertical-align: top;
+  }
+}
+@media (max-width: 840px) {
+  /* Center containers (already present in v4.0.3; harmless if duplicated) */
+  .single-model .video-grid,
+  .single-model .posts,
+  .single-model .loop-videos,
+  .single-model .related-videos,
+  .single-model .entry-related {
+    justify-content: center !important;
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  /* Make each card the same width on any phone */
+  .single-model .video-grid > *,
+  .single-model .posts > li,
+  .single-model .loop-videos > * {
+    width: clamp(320px, 92vw, 560px);
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Ensure thumbs fill the card width cleanly */
+  .single-model .video-grid img,
+  .single-model .posts img,
+  .single-model .loop-videos img {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+}
+
+/* v4.0.3-b — Mobile: center cards without vw overflow */
+@media (max-width: 840px) {
+  /* Center the list itself (harmless if already centered) */
+  .single-model .tmw-related-videos,
+  .single-model .related-videos,
+  .single-model .entry-related,
+  .single-model .related-posts,
+  .single-model .video-grid,
+  .single-model .videos,
+  .single-model .posts,
+  .single-model .loop-videos {
+    justify-content: center !important;
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  /* FIX: use container-based sizing (no vw) to avoid overflow from side padding */
+  .single-model .video-grid > *,
+  .single-model .posts > li,
+  .single-model .loop-videos > * {
+    width: 100% !important;        /* fill the container’s content box */
+    max-width: 560px !important;    /* cap for consistent look across phones */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Thumbs fill the card exactly */
+  .single-model .video-grid img,
+  .single-model .posts img,
+  .single-model .loop-videos img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Optional safety: clip any tiny sub-pixel overflow caused by transforms */
+  .single-model .video-grid,
+  .single-model .posts,
+  .single-model .loop-videos {
+    overflow-x: clip;
+  }
+}
+
+
+/* v4.3.0 — Allow slot to shift horizontally without clipping */
+.single-model .tmw-slot-banner {
+  position: relative;    /* enable translateX to take effect cleanly */
+  overflow: visible;     /* avoid clipping if parent has smaller content box */
+}
+
+/* Slot machine: reserve space & stabilize assets (CLS guard) */
+.single-model .tmw-slot-machine {
+  min-height: 300px;
+}
+
+@media (min-width: 768px) {
+  .single-model .tmw-slot-machine {
+    min-height: 360px;
+  }
+}
+
+.single-model .tmw-slot-machine .slot-body,
+.single-model .tmw-slot-machine .slot-container,
+.single-model .tmw-slot-machine .slot-right {
+  min-height: 240px;
+}
+
+.single-model .tmw-slot-machine img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.single-model .tmw-slot-machine .slot-container img,
+.single-model .tmw-slot-machine .slot-right img {
+  width: 110px;
+  aspect-ratio: 1 / 1;
+}
+
+.single-model .tmw-slot-machine .tmw-result.slot-result {
+  animation-iteration-count: 4;
+  will-change: transform, opacity;
+}
+
+@keyframes heartbeatWin {
+  0%   { transform: scale(1);    opacity: 1; }
+  20%  { transform: scale(1.05); opacity: 1; }
+  45%  { transform: scale(0.96); opacity: 0.92; }
+  70%  { transform: scale(1.07); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* =========================================================
+   [TMW ZERO-SEAM v4] Single-model: hero sits INSIDE header
+   Remove any join line by neutralizing the FIRST block
+   that follows the hero inside .entry-header.
+   ========================================================= */
+
+/* 1) Ensure no spacing on hero/container inside header */
+.single-model .entry-header .tmw-banner-container,
+.single-model .entry-header .tmw-banner-frame {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important; /* hero/container */
+}
+
+/* 2) Bulletproof: neutralize the immediate sibling after the hero */
+.single-model .entry-header .tmw-banner-frame + *,
+.single-model .entry-header .tmw-banner-container + * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border-top: 0 !important;
+  box-shadow: none !important;
+  background-clip: padding-box; /* avoids 1px bleed from inset shadows */
+}
+.single-model .entry-header .tmw-banner-frame + *::before,
+.single-model .entry-header .tmw-banner-container + *::before {
+  content: none !important; /* kill decorative hairlines */
+}
+
+/* 3) Safety: header itself must not reintroduce a line */
+.single-model .entry-header {
+  padding-top: 0 !important;
+  border-top: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 4) Image baseline guards (prevents internal 1px gaps) */
+.single-model .entry-header .tmw-banner-frame img {
+  display: block !important;
+  vertical-align: bottom !important;
+  line-height: 0 !important;
+}
+
+/* ======================================================================
+   Performance: composited animations + visible LCP helper
+   ====================================================================== */
+.tmw-pulse {
+  animation: tmw-pulse-scale 1.5s infinite;
+  box-shadow: none !important;
+  will-change: transform, opacity;
+}
+
+@keyframes tmw-pulse-scale {
+  0%   { transform: scale(1);    opacity: 1;   }
+  50%  { transform: scale(1.05); opacity: 0.85; }
+  100% { transform: scale(1);    opacity: 1;   }
+}
+
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-view,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-view {
+  animation: none;
+}
+
+.tmw-flip-front .tmw-lcp-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* =========================
+   Slot machine stability
+   ========================= */
+.tmw-slot-machine,
+.single-model .tmw-slot-machine {
+  min-height: 420px;
+}
+
+@media (min-width: 768px) {
+  .tmw-slot-machine,
+  .single-model .tmw-slot-machine {
+    min-height: 360px;
+  }
+}
+
+.tmw-slot-machine .tmw-result.slot-result {
+  text-shadow: none !important;
+  animation: tmw-result-pulse 1.6s infinite !important;
+  will-change: transform, opacity;
+}
+
+@keyframes tmw-result-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  40% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+}

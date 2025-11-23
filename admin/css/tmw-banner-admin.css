@@ -1,0 +1,39 @@
+/* --- Backend Banner Preview (final identical alignment) --- */
+#tmw-banner-preview,
+#tmwBannerPreview {
+  position: relative;
+  width: 100%;
+  max-width: 1035px !important;        /* same as live banner */
+  overflow: hidden;
+  margin: 0 auto 20px;
+  background: #000;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+
+/* === Backend Banner Frame (350 px height) === */
+#tmw-banner-preview,
+#tmwBannerPreview,
+#tmw-banner-preview .tmw-banner-frame,
+#tmwBannerPreview .tmw-banner-frame {
+  aspect-ratio: 1035 / 350 !important;
+}
+
+/* Image behavior identical to frontend */
+#tmw-banner-preview .tmw-banner-frame,
+#tmwBannerPreview .tmw-banner-frame {
+  --offset-scale: 1;
+}
+
+#tmw-banner-preview img,
+#tmwBannerPreview img {
+  width: 100% !important;
+  height: 100% !important;             /* match frontend fill model  */
+  object-fit: cover !important;        /* identical crop logic       */
+  object-position: 50% var(--tmw-hero-vpos, 50%) !important;
+  transform: translateY(calc(var(--offset-y, 0px) * var(--offset-scale, 1))) !important;
+  margin: 0;
+  display: block;
+  transition: transform 0.25s ease;
+}

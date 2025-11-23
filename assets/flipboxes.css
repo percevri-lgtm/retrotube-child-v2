@@ -1,0 +1,287 @@
+/* =========================================================
+   Flipboxes CSS — Retrotube Child (Flipbox Edition) v2
+   ========================================================= */
+
+/* Theme accent (red) */
+.tmw-grid{ --tmw-accent:#db001a; }
+
+/* v3.5.7 — Flipbox CTA bottom offsets */
+:root{
+  --tmw-flip-cta-bottom-desktop:5px;
+  --tmw-flip-cta-bottom-mobile:5px;
+}
+
+/* ---------- GRID ---------- */
+.tmw-grid{
+  display:grid;
+  gap:24px;
+  /* perf hint for long grids */
+  content-visibility:auto;
+  contain-intrinsic-size:1px 1600px;
+}
+/* columns helpers (you set tmw-cols-* in PHP) */
+.tmw-cols-2{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.tmw-cols-3{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+.tmw-cols-4{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.tmw-cols-5{ grid-template-columns:repeat(5,minmax(0,1fr)); }
+
+@media (max-width:1024px){
+  .tmw-cols-4,.tmw-cols-5{ grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:768px){
+  .tmw-cols-3,.tmw-cols-4,.tmw-cols-5{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:480px){
+  .tmw-cols-2,.tmw-cols-3,.tmw-cols-4,.tmw-cols-5{ grid-template-columns:1fr; }
+}
+
+/* ---------- CARD / LINK ---------- */
+.tmw-flip{
+  position:relative;
+  display:block;
+  width:100%;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 6px 22px rgba(0,0,0,.35);
+  background:#0b0b0b;
+  /* aspect ratio for consistent tiles */
+  aspect-ratio:2/3;
+  perspective:1000px;
+}
+/* fallback for browsers without aspect-ratio */
+.tmw-flip::before{ content:""; float:left; padding-bottom:150%; /* 3/2 = 1.5 */ }
+.tmw-flip::after{ content:""; display:block; clear:both; }
+
+.tmw-flip-inner{
+  position:absolute; inset:0;
+  transform-style:preserve-3d;
+  transition:transform .6s ease;
+}
+.tmw-face,
+.tmw-front,
+.tmw-back,
+.tmw-flip-front,
+.tmw-flip-back{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.tmw-face.back,
+.tmw-back,
+.tmw-flip-back{
+  transform:rotateY(180deg);
+  z-index:2;
+  pointer-events:auto;
+}
+.tmw-face.front,
+.tmw-front,
+.tmw-flip-front{
+  z-index:3;
+}
+
+/* Flip the inner container */
+.tmw-flip.flipped .tmw-flip-inner{
+  transform:rotateY(180deg);
+}
+
+/* After flip, disable front interactions so back buttons receive taps */
+.tmw-flip.flipped .tmw-face.front,
+.tmw-flip.flipped .tmw-front,
+.tmw-flip.flipped .tmw-flip-front{
+  pointer-events:none !important;
+}
+
+/* If a theme wraps the entire card in an anchor, disable it only while flipped */
+.tmw-flip.flipped > a:first-child{
+  pointer-events:none !important;
+}
+
+.tmw-flip:hover .tmw-flip-inner,
+.tmw-flip:focus-visible .tmw-flip-inner{
+  transform:rotateY(180deg);
+}
+@media (prefers-reduced-motion:reduce){
+  .tmw-flip-inner{ transition:none; }
+}
+
+/* ---------- OVERLAYS ---------- */
+/* Front & Back labels — smaller + single line */
+/* FRONT: actor name centered */
+.tmw-name{
+  position:absolute; left:50%; bottom:12px;
+  transform:translateX(-50%);
+  padding:5px 10px; border-radius:8px;
+  font-weight:800; font-size:.90rem;
+  color:#fff; background:rgba(0,0,0,.55); line-height:1;
+  text-decoration:none;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:88%;
+}
+/* Front arrows smaller too (still in red) */
+.tmw-name::after{
+  content:" >>>";
+  margin-left:8px;
+  font-weight:900;
+  font-size:1rem;
+  line-height:1;
+  color:var(--tmw-accent);
+}
+
+/* BACK: centered “View profile” in red */
+.tmw-view{
+  position:absolute;
+  left:50%;
+  top:auto;
+  bottom:var(--tmw-flip-cta-bottom-desktop);
+  transform:translateX(-50%);
+  padding:5px 10px; border-radius:8px;
+  font-weight:800; font-size:.90rem;
+  color:var(--tmw-accent); background:rgba(0,0,0,.55);
+  text-decoration:none; line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:calc(100% - 24px);
+  pointer-events:auto;
+  z-index:10;
+}
+
+/* ---------- PAGINATION ---------- */
+.tmw-pagination{
+  grid-column:1 / -1;
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+  margin-top:10px;
+}
+.tmw-pagination .page-numbers{
+  display:inline-block; min-width:34px; text-align:center;
+  padding:8px 12px; border-radius:999px;
+  background:#181818; color:#eee; text-decoration:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.25);
+}
+.tmw-pagination .page-numbers.current,
+.tmw-pagination .page-numbers.next{
+  background:var(--tmw-accent); color:#fff;
+}
+.tmw-pagination .page-numbers:hover{ filter:brightness(1.2); }
+
+/* ---------- TITLE BAR (screenshot style) ---------- */
+.tmw-title{
+  display:flex; align-items:center; gap:10px;
+  background:#2d2d2d; color:#fff;
+  padding:10px 16px; margin:8px 0 16px;
+  font-size:1.25rem; font-weight:700;
+  border-left:10px solid var(--tmw-accent);
+  border-radius:4px;
+}
+.tmw-title .tmw-star{ color:#fff; font-size:1.1em; line-height:1; }
+
+/* ---------- LAYOUT WITH SIDEBAR ---------- */
+.tmw-layout{
+  display:grid; grid-template-columns:1fr 320px; gap:24px;
+}
+@media (max-width:1024px){
+  .tmw-layout{ grid-template-columns:1fr; }
+}
+
+/* ===== Attention animations for back label ===== */
+/* Subtle pulse on the label */
+.tmw-flip-back .tmw-view{
+  /* keep your existing styles; add the animation below */
+  animation: tmw-pulse 1.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+
+/* Pulse the chip (slight scale + soft red glow) */
+@keyframes tmw-pulse{
+  0%   { transform: translateX(-50%) scale(1);    opacity: 1;    }
+  35%  { transform: translateX(-50%) scale(1.06); opacity: 0.92; }
+  70%  { transform: translateX(-50%) scale(1);    opacity: 1;    }
+  100% { transform: translateX(-50%) scale(1);    opacity: 1;    }
+}
+
+/* Nudge the >>> a tiny bit */
+@keyframes tmw-caret{
+  0%,100% { transform: translateX(0);   opacity: 1;   }
+  50%     { transform: translateX(2px); opacity: .92; }
+}
+
+/* ===== Attention animations for FRONT label (actor name) ===== */
+.tmw-flip-front .tmw-name{
+  /* keep existing centering styles; add animation */
+  animation: tmw-pulse 1.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.tmw-flip-front .tmw-name::after{
+  /* we keep your existing '›››' or '>>>' content; just animate it */
+  animation: tmw-caret 1s ease-in-out infinite;
+  display: inline-block;
+}
+
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmw-grid .tmw-flip:nth-of-type(n+13) .tmw-view,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-pulse,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-name::after,
+.tmwfm-grid .tmw-flip:nth-of-type(n+13) .tmw-view{
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .tmw-flip-back .tmw-view,
+  .tmw-flip-front .tmw-name,
+  .tmw-flip-front .tmw-name::after{
+    animation:none;
+  }
+}
+
+@media (max-width:768px), (pointer:coarse){
+  .tmw-view{
+    bottom:var(--tmw-flip-cta-bottom-mobile);
+    font-size:1.80rem;
+    line-height:1;
+    padding:10px 16px;
+    border-radius:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:92%;
+    cursor:pointer;
+  }
+  .tmw-name{
+    font-size:1.80rem;
+    line-height:1;
+    padding:10px 16px;
+    border-radius:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:92%;
+  }
+  .tmw-name::after{
+    font-size:1.80rem;
+    line-height:1;
+  }
+}
+
+/* Safety net: hide any leftover video embeds inside the post description */
+.entry-content iframe,
+.entry-content video,
+.entry-content .wp-block-embed,
+.entry-content .wp-block-video,
+.entry-content .video-js,
+.entry-content .jwplayer,
+.entry-content .plyr,
+.entry-content .flowplayer,
+.entry-content .responsive-embed,
+.entry-content .embed-container { display:none !important; }
+
